@@ -1,0 +1,31 @@
+{
+  "project": "OPC 一人公司 AI 操作系统（One Person Company OS）",
+  "track": "AI+自主创新（联动 AI+体育文旅、智慧汽车/具身）",
+  "form": "个人（可扩展为团队）",
+  "name": "陈征宇",
+  "school": "成都体育学院",
+  "dept": "经济管理学院 经管26经管1班",
+  "email": "czy20080222@outlook.com",
+  "oneline": "一个人 + 一个 AI 操作台，就能接单、出片、出报告、出模型——让“一个人的公司”真的跑起来。",
+  "pain": "小微创业者与个人创作者（学生创客尤甚）缺的不是点子，而是同时具备“会写、会画、会剪、会算、会交付”的团队。雇一个全能团队月成本以万计，而通用 AI 工具零散、切换成本高、数据还要外传。",
+  "arch": "A · OPC 核心（指令中枢 → 任务分解 → MCP 工具调用 → 交付物）\n ├ 云腿①：DeepSeek-V4.1-Flash（成本低、日常运营）\n ├ 云腿②：GPT-6.2-Sol（强推理、策略与评审）\n ├ 本地兜底：Qwen3.5-9B（断网 / 隐私场景）\n ├ 模块 B · 内容与体育服务线：RTMPose 动作评分 + Wan2.2 出片 + ChatTTS 配音\n └ 模块 C · 具身交付线：SolidWorks/FreeCAD 模型 + Blender MCP 自动改型 + GR00T/LeRobot 示教",
+  "modules": [
+    {
+      "name": "模块 B · 内容与体育服务线",
+      "detail": "面向体育院校与文旅单位：一次拍摄，自动输出动作评分报告 + 文旅短视频。技术路径：RTMPose/MediaPipe 关键点 → 规则打分 → 报告模板；Wan2.2/Cosmos3-Nano 生成画面 → ChatTTS 配音 → 自动剪辑成片。"
+    },
+    {
+      "name": "模块 C · 具身交付线",
+      "detail": "面向中小制造与教学场景：SolidWorks/FreeCAD 建模 + Blender MCP 由自然语言驱动改型渲染，Isaac GR00T N1.7 / LeRobot 做低成本机械臂示教与动作迁移。"
+    },
+    {
+      "name": "模块 A · 一人公司操作台",
+      "detail": "统一对话界面：模型路由（本地/云自动切换）、MCP 一键接入（filesystem/git/office/comfyui/blender…）、任务面板与计划书一键导出。"
+    }
+  ],
+  "stack": "本地：Qwen3.5-9B(Q4 5.68GB) / Gemma 4 12B / gpt-oss-20b；云：DeepSeek-V4.1-Flash、Kimi K3.1 Pro、GLM-5.3、Qwen3.8；专用：RTMPose、Wan-2.2、Cosmos3-Nano、Hunyuan3D-2.1、Fun-ASR、ChatTTS、GR00T、LeRobot；工具协议：MCP（modelcontextprotocol/servers 92.2k★，best-of-mcp-servers 400+ 收录）",
+  "landing": "1) 学生创客与个体工作室：按需订阅，月费远低于雇人；2) 体育院校/俱乐部：动作分析服务按次收费；3) 中小制造：模型与示教交付。可对接成都东部新区 AI+OPC 孵化资源，先做校园与本地商家样板间，再走政府/园区采购。",
+  "deliverables": "① 可运行 Demo（双击启动的本地控制台）② 2 分钟演示视频 ③ 项目计划书 ④ 路演 PPT ⑤ 开源模型与 MCP 选型清单",
+  "signup": "http://112.195.201.35/app/2112098882311163905/published/2113552530711052290",
+  "deadline": "待附件确认"
+}

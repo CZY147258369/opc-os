@@ -1,0 +1,96 @@
+[
+  {
+    "id": "filesystem",
+    "name": "Filesystem · 文件读写",
+    "repo": "modelcontextprotocol/servers",
+    "stars": "92.2k",
+    "command": "npx -y @modelcontextprotocol/server-filesystem C:\\Users\\czy\\Desktop",
+    "note": "让 AI 直接读写桌面文件（可改路径）。零配置，最快验证通道。",
+    "group": "基础"
+  },
+  {
+    "id": "sequential-thinking",
+    "name": "Sequential Thinking · 分步推理",
+    "repo": "modelcontextprotocol/servers",
+    "stars": "92.2k",
+    "command": "npx -y @modelcontextprotocol/server-sequential-thinking",
+    "note": "把复杂任务拆成可审阅的思考步骤，适合写计划书/做方案。",
+    "group": "基础"
+  },
+  {
+    "id": "memory",
+    "name": "Memory · 长期记忆",
+    "repo": "modelcontextprotocol/servers",
+    "stars": "92.2k",
+    "command": "npx -y @modelcontextprotocol/server-memory",
+    "note": "知识图谱式记忆，跨会话记住客户与项目。",
+    "group": "基础"
+  },
+  {
+    "id": "everything",
+    "name": "Everything · 全功能自检",
+    "repo": "modelcontextprotocol/servers",
+    "stars": "92.2k",
+    "command": "npx -y @modelcontextprotocol/server-everything",
+    "note": "官方演示服务器，用来验证通道是否打通（推荐第一次体检就用它）。",
+    "group": "基础"
+  },
+  {
+    "id": "playwright",
+    "name": "Playwright · 浏览器自动化",
+    "repo": "microsoft/playwright-mcp",
+    "stars": "官方",
+    "command": "npx -y @playwright/mcp@latest",
+    "note": "自动填表、抓报名页、批量后台操作。首次运行会下载浏览器（较慢）。",
+    "group": "获客与自动化"
+  },
+  {
+    "id": "chrome-devtools",
+    "name": "Chrome DevTools · 页面诊断",
+    "repo": "ChromeDevTools/chrome-devtools-mcp",
+    "stars": "官方",
+    "command": "npx -y chrome-devtools-mcp@latest",
+    "note": "读页面 DOM/网络请求，配合报名系统这类 SPA 页面取数据。",
+    "group": "获客与自动化"
+  },
+  {
+    "id": "comfyui",
+    "name": "ComfyUI · 出图出片（模块 B）",
+    "repo": "joenorton/comfyui-mcp-server",
+    "stars": "412",
+    "command": "python C:\\Users\\czy\\comfyui-mcp-server\\server.py",
+    "note": "需先 git clone + pip install，并启动 ComfyUI。自然语言驱动本地出图/出视频。",
+    "group": "业务模块",
+    "needs": "ComfyUI 运行中"
+  },
+  {
+    "id": "blender",
+    "name": "Blender · 三维改型（模块 C）",
+    "repo": "ahujasid/mcp-for-blender",
+    "stars": "35.6k",
+    "command": "mcp-for-blender",
+    "note": "pip install mcp-for-blender，并在 Blender 里启用对应插件后才能连。",
+    "group": "业务模块",
+    "needs": "Blender + 插件"
+  },
+  {
+    "id": "fetch",
+    "name": "Fetch · 网页正文抓取",
+    "repo": "modelcontextprotocol/servers",
+    "stars": "92.2k",
+    "command": "uvx mcp-server-fetch",
+    "note": "Python 生态，需先装 uv（winget install astral-sh.uv）。抓政策/招标/赛制页面。",
+    "group": "基础",
+    "needs": "uv"
+  },
+  {
+    "id": "git",
+    "name": "Git · 版本管理",
+    "repo": "modelcontextprotocol/servers",
+    "stars": "92.2k",
+    "command": "uvx mcp-server-git --repository C:\\Users\\czy",
+    "note": "Python 生态，需先装 uv。让 AI 自己提交、回滚、看 diff。",
+    "group": "基础",
+    "needs": "uv"
+  }
+]

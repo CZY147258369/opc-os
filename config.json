@@ -1,0 +1,6 @@
+{
+  "port": 8770,
+  "auto_route": ["local", "aihubmix/deepseek-v4.1-flash", "aihubmix/gpt-6.2-sol", "deepseek/deepseek-chat"],
+  "system_prompt": "你是 OPC 一人公司 AI 操作台的助手。回答简洁、可执行，中文作答。",
+  "local_prefer": ["qwen3.5:9b", "qwen3.5:4b", "gemma4:12b", "gpt-oss:20b"]
+}

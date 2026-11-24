@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+mcp_servers.json
+task/计划书_草稿.md
+*.png
+_*.py

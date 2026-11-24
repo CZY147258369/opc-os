@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OPC 一人公司 AI 操作系统</title>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12161f; --panel2:#171c28; --line:#242c3d;
+    --tx:#e8ecf5; --dim:#8b96ad; --acc:#5b8cff; --acc2:#22d3a6; --warn:#ffb347; --bad:#ff6b6b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 15% -10%,#1a2masked 0,transparent 60%),var(--bg);
+       color:var(--tx);font:14px/1.6 "Segoe UI","Microsoft YaHei",system-ui,sans-serif;height:100vh;overflow:hidden}
+  .app{display:grid;grid-template-columns:200px 1fr;grid-template-rows:56px 1fr;height:100vh}
+  header{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:0 18px;
+         border-bottom:1px solid var(--line);background:rgba(18,22,31,.75);backdrop-filter:blur(8px)}
+  .logo{font-weight:700;letter-spacing:.5px}
+  .logo span{color:var(--acc)}
+  .pills{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line);
+        border-radius:999px;font-size:12px;color:var(--dim);background:var(--panel)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--bad)}
+  .dot.on{background:var(--acc2)}
+  nav{border-right:1px solid var(--line);padding:12px 8px;background:var(--panel)}
+  nav button{width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:0;border-radius:10px;
+             background:transparent;color:var(--dim);font-size:13.5px;cursor:pointer}
+  nav button.active{background:linear-gradient(90deg,rgba(91,140,255,.18),transparent);color:var(--tx);
+                    box-shadow:inset 2px 0 0 var(--acc)}
+  nav .hint{margin-top:14px;padding:10px;font-size:11.5px;color:#5e687e;line-height:1.5;
+            border-top:1px solid var(--line)}
+  main{overflow:auto;padding:18px 22px}
+  .page{display:none}.page.active{display:block}
+  h2{margin:0 0 4px;font-size:17px}
+  .sub{color:var(--dim);font-size:12.5px;margin-bottom:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+  .row{display:flex;gap:10px;align-items:center}
+  select,input,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--tx);
+        border-radius:10px;padding:9px 11px;font:inherit;outline:none}
+  select:focus,input:focus,textarea:focus{border-color:var(--acc)}
+  button.btn{background:var(--acc);border:0;color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font:inherit}
+  button.btn:disabled{opacity:.45;cursor:default}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--tx)}
+  .chat{display:flex;flex-direction:column;height:calc(100vh - 170px)}
+  .msgs{flex:1;overflow:auto;padding-right:6px}
+  .msg{margin-bottom:14px;display:flex;gap:10px}
+  .who{flex:0 0 30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:12px;
+       background:var(--panel2);border:1px solid var(--line)}
+  .bubble{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 13px;
+          white-space:pre-wrap;word-break:break-word}
+  .msg.me .bubble{background:linear-gradient(180deg,rgba(91,140,255,.14),rgba(91,140,255,.05));border-color:#2f3f66}
+  .meta{font-size:11px;color:#66718a;margin-top:6px}
+  .composer{display:flex;gap:8px;margin-top:12px}
+  .composer textarea{flex:1;resize:none;height:56px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .mcp{position:relative}
+  .mcp h3{margin:0 0 6px;font-size:14px}
+  .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:6px;background:#1d2434;
+       color:var(--dim);margin-right:6px}
+  .mcp p{margin:6px 0 10px;color:var(--dim);font-size:12.5px}
+  .tools{margin-top:10px;font-size:12px;color:var(--acc2);max-height:120px;overflow:auto}
+  .err{color:var(--bad);font-size:12px;margin-top:8px;white-space:pre-wrap}
+  .ok{color:var(--acc2)}
+  label.f{display:block;font-size:12px;color:var(--dim);margin:10px 0 4px}
+  label.f input,label.f textarea{width:100%}
+  .planbox{background:#0e121a;border:1px solid var(--line);border-radius:12px;padding:14px;
+           white-space:pre-wrap;font:12.5px/1.7 ui-monospace,Consolas,monospace;max-height:46vh;overflow:auto}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:12.5px}
+  .kv b{font-weight:600;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">OPC <span>·</span> 一人公司 AI 操作系统</div>
+    <div class="pills">
+      <div class="pill"><i class="dot" id="dotLocal"></i><span id="tLocal">本地模型</span></div>
+      <div class="pill"><i class="dot" id="dotCloud"></i><span id="tCloud">云端大模型</span></div>
+      <div class="pill"><i class="dot" id="dotMcp"></i><span id="tMcp">MCP 0</span></div>
+    </div>
+  </header>
+
+  <nav>
+    <button class="active" data-page="chat">对话台</button>
+    <button data-page="mcp">MCP 接入</button>
+    <button data-page="task">参赛任务</button>
+    <div class="hint">A 主体：路由本地/云模型 + MCP 工具<br>B 内容与体育服务线<br>C 具身交付线</div>
+  </nav>
+
+  <main>
+    <!-- 对话台 -->
+    <section class="page active" id="page-chat">
+      <h2>对话台</h2>
+      <div class="sub">自动模式：有本地对话模型就用本地，失败即无感切云端。也可以手动钉死某一条腿。</div>
+      <div class="chat">
+        <div class="msgs" id="msgs"></div>
+        <div class="row" style="margin-top:8px">
+          <select id="modelSel" style="min-width:260px"></select>
+          <button class="btn ghost" id="btnClear">清空</button>
+          <span class="meta" id="usedInfo"></span>
+        </div>
+        <div class="composer">
+          <textarea id="input" placeholder="例如：用一段话给评委讲清“一个人 + 一个操作台”怎么交付三条业务线（Enter 发送，Shift+Enter 换行）"></textarea>
+          <button class="btn" id="btnSend">发送</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MCP -->
+    <section class="page" id="page-mcp">
+      <h2>MCP 快速接入</h2>
+      <div class="sub">来自 GitHub 的真实 MCP 服务器，点“接入”写进本地配置；点“体检”实际握手取工具列表。</div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <b>已接入</b><button class="btn ghost" id="btnReloadMcp">刷新</button>
+        </div>
+        <div class="grid" id="regList" style="margin-top:12px"></div>
+      </div>
+      <h2 style="margin-top:18px">可选目录</h2>
+      <div class="grid" id="catList" style="margin-top:12px"></div>
+    </section>
+
+    <!-- 任务 -->
+    <section class="page" id="page-task">
+      <h2>参赛任务 · 成都东部新区 AI+OPC 产业创新大赛</h2>
+      <div class="sub">字段直接来自群公告与你的真实资料，改完保存即可一键生成计划书草稿。</div>
+      <div class="card">
+        <div class="kv" id="taskKV"></div>
+        <div id="taskForm"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" id="btnSave">保存</button>
+          <button class="btn ghost" id="btnPlan">生成计划书</button>
+          <a class="btn ghost" id="btnDownload" href="/api/plan.md" download="OPC计划书.md"
+             style="text-decoration:none;padding:9px 16px;border-radius:10px">下载 .md</a>
+          <span class="meta" id="taskMsg"></span>
+        </div>
+      </div>
+      <div class="planbox" id="planBox" style="display:none"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const api = async (p, opt) => {
+  const r = await fetch(p, opt);
+  return await r.json();
+};
+const esc = s => (s ?? "").toString().replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+// 状态
+async function health(){
+  const h = await api("/api/health");
+  const chat = (h.chat_models || []).length;
+  $("#dotLocal").className = "dot" + (h.ollama ? " on" : "");
+  $("#tLocal").textContent = h.ollama ? `本地 ${chat} 个对话模型`
+    : (h.ollama_up ? "本地：仅向量模型" : "本地：Ollama 未启动");
+  const cloudOn = Object.values(h.cloud).some(Boolean);
+  $("#dotCloud").className = "dot" + (cloudOn ? " on" : "");
+  $("#tCloud").textContent = "云端 " + Object.entries(h.cloud).filter(([,v])=>v).map(([k])=>k).join("/");
+  $("#dotMcp").className = "dot" + (h.mcp_registered ? " on" : "");
+  $("#tMcp").textContent = `MCP ${h.mcp_registered}`;
+}
+
+// 模型列表
+async function loadModels(){
+  const d = await api("/api/models");
+  const sel = $("#modelSel");
+  sel.innerHTML = `<option value="auto">自动路由（推荐）</option>`;
+  for (const g of d.groups){
+    if (!g.items.length) continue;
+    const og = document.createElement("optgroup");
+    og.label = g.group;
+    for (const it of g.items){
+      const o = document.createElement("option");
+      o.value = g.group.startsWith("云端") ? `${it.group}:${it.id}` : `local:${it.id}`;
+      o.textContent = `${it.label}${it.tier ? "  · " + it.tier : ""}`;
+      og.appendChild(o);
+    }
+    sel.appendChild(og);
+  }
+}
+
+// 对话
+const history = [];
+function render(){
+  $("#msgs").innerHTML = history.map(m => `
+    <div class="msg ${m.role === "user" ? "me" : ""}">
+      <div class="who">${m.role === "user" ? "我" : "AI"}</div>
+      <div class="bubble">${esc(m.content)}${m.meta ? `<div class="meta">${esc(m.meta)}</div>` : ""}</div>
+    </div>`).join("");
+  $("#msgs").scrollTop = $("#msgs").scrollHeight;
+}
+async function send(){
+  const box = $("#input"), text = box.value.trim();
+  if (!text) return;
+  box.value = "";
+  history.push({role:"user", content:text}); render();
+  const btn = $("#btnSend"); btn.disabled = true;
+  history.push({role:"assistant", content:"…思考中"}); render();
+  try{
+    const r = await api("/api/chat", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({model: $("#modelSel").value,
+        messages: history.filter(m => !m.meta).map(({role,content}) => ({role,content}))})});
+    history.pop();
+    if (r.ok){
+      const fb = r.fallback_from?.length ? `｜回落自 ${r.fallback_from.join(" → ")}` : "";
+      history.push({role:"assistant", content:r.reply, meta:`${r.used} · ${r.ms}ms${fb}`});
+      $("#usedInfo").textContent = r.used;
+    } else {
+      history.push({role:"assistant", content:"⚠ 全部通道失败：\n" + (r.errors||[]).join("\n"), meta:"请检查本地模型是否已拉取 / 云端 key"});
+    }
+  }catch(e){
+    history.pop(); history.push({role:"assistant", content:"⚠ 请求异常：" + e});
+  }
+  render(); btn.disabled = false; box.focus();
+}
+$("#btnSend").onclick = send;
+$("#input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send(); }
+});
+$("#btnClear").onclick = () => { history.length = 0; render(); $("#usedInfo").textContent = ""; };
+
+// 导航
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  $("#page-" + b.dataset.page).classList.add("active");
+  if (b.dataset.page === "mcp") loadMcp();
+  if (b.dataset.page === "task") loadTask();
+});
+
+// MCP
+async function loadMcp(){
+  const d = await api("/api/mcp");
+  const reg = d.registered || [], cat = d.registry || [];
+  const has = id => reg.some(r => r.id === id);
+  $("#regList").innerHTML = reg.length ? reg.map(r => `
+    <div class="card mcp">
+      <h3>${esc(r.name)}</h3>
+      <div><span class="tag">${esc(r.repo)}</span><span class="tag">★ ${esc(r.stars)}</span></div>
+      <p>${esc(r.note)}</p>
+      <div class="row">
+        <button class="btn" onclick="probe('${r.id}')">体检</button>
+        <button class="btn ghost" onclick="rm('${r.id}')">移除</button>
+      </div>
+      <div class="tools" id="tools-${r.id}"></div>
+    </div>`).join("") : `<p class="sub">还没有接入任何 MCP 服务器，从下面目录点“接入”。</p>`;
+  $("#catList").innerHTML = cat.map(c => `
+    <div class="card mcp">
+      <h3>${esc(c.name)}</h3>
+      <div><span class="tag">${esc(c.group)}</span><span class="tag">★ ${esc(c.stars)}</span>
+        ${c.needs ? `<span class="tag" style="color:#ffb347">需 ${esc(c.needs)}</span>` : ""}</div>
+      <p>${esc(c.note)}</p>
+      <div class="row">
+        <button class="btn" ${has(c.id) ? "disabled" : ""} onclick="add('${c.id}')">
+          ${has(c.id) ? "已接入" : "接入"}</button>
+      </div>
+    </div>`).join("");
+  health();
+}
+async function add(id){
+  const r = await api("/api/mcp/add", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({id})});
+  loadMcp();
+}
+async function rm(id){
+  await api("/api/mcp/remove", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({id})});
+  loadMcp();
+}
+async function probe(id){
+  const box = $("#tools-" + id);
+  box.innerHTML = "握手测试中（首次需下载 npm 包，可能 30–90 秒）…";
+  const r = await api("/api/mcp/probe", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({id})});
+  if (r.ok){
+    box.innerHTML = `<b class="ok">✓ 通道正常：${esc(r.server?.name || "")} ${esc(r.server?.version || "")}</b><br>` +
+      r.tools.map(t => `· <b>${esc(t.name)}</b> ${esc(t.desc)}`).join("<br>");
+  } else {
+    box.innerHTML = `<span class="err">✗ ${esc(r.error)}</span>`;
+  }
+}
+$("#btnReloadMcp").onclick = loadMcp;
+
+// 任务
+const FIELDS = [
+  ["project","项目名称","input"], ["track","参赛方向","input"], ["form","参赛形式","input"],
+  ["name","负责人","input"], ["school","学校","input"], ["dept","院系/班级","input"],
+  ["email","邮箱","input"], ["oneline","一句话定位","input"],
+  ["pain","痛点","textarea"], ["arch","架构","textarea"],
+  ["stack","开源模型与工具链","textarea"], ["landing","落地与孵化路径","textarea"],
+  ["deliverables","交付物","textarea"], ["signup","报名入口","input"], ["deadline","截止时间","input"],
+];
+let TASK = {};
+async function loadTask(){
+  TASK = await api("/api/task");
+  $("#taskKV").innerHTML = `
+    <b>赛事</b><span>成都东部新区 AI+OPC 产业创新大赛 · AI赋能·产创共生</span>
+    <b>方向池</b><span>AI+智慧汽车 / 智慧政务 / 体育文旅 / 自主创新</span>
+    <b>理念</b><span>ONE PERSON · ONE COMPANY（一个人的时代）</span>`;
+  $("#taskForm").innerHTML = FIELDS.map(([k, label, type]) => {
+    const v = esc(TASK[k] ?? "");
+    return type === "textarea"
+      ? `<label class="f">${label}<textarea id="f-${k}" rows="3" style="resize:vertical">${v}</textarea></label>`
+      : `<label class="f">${label}<input id="f-${k}" value="${v}"></label>`;
+  }).join("");
+}
+$("#btnSave").onclick = async () => {
+  const body = {};
+  for (const [k] of FIELDS) body[k] = $("#f-" + k).value;
+  const r = await api("/api/task", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+  $("#taskMsg").textContent = r.ok ? "✓ 已保存" : "保存失败";
+};
+$("#btnPlan").onclick = async () => {
+  const r = await api("/api/plan");
+  const box = $("#planBox");
+  box.style.display = "block"; box.textContent = r.markdown;
+};
+loadModels().then(() => { render(); health(); });
+</script>
+</body>
+</html>
